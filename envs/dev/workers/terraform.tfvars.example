@@ -1,0 +1,6 @@
+hcloud_token = ""
+ssh_key_name = "my-key"
+name_prefix  = "pontus-dev"
+worker_count = 1
+worker_type  = "cpx22"
+location     = "nbg1"

@@ -4,10 +4,11 @@ Infrastructure-as-code for the Euxine Data Platform. Provisions a k3s cluster on
 
 ## Architecture
 
-The infrastructure is split into two layers with separate state:
+The infrastructure is split into three layers with separate state:
 
 - **persistent/** — Floating IP and volume. Created once, never torn down. DNS points to the floating IP.
-- **cluster/** — Ephemeral VM with k3s. Can be destroyed and recreated freely. Reads persistent state to attach the floating IP and volume.
+- **cluster/** — Ephemeral server VM with k3s control plane. Can be destroyed and recreated freely. Reads persistent state to attach the floating IP and volume.
+- **workers/** — Ephemeral worker VMs that join the k3s cluster. Can be scaled independently without touching the server.
 
 k3s stores its data on the persistent volume (`/mnt/data/k3s`), so cluster state (certificates, secrets, workloads) survives VM rebuilds.
 
@@ -100,6 +101,66 @@ ArgoCD is available at `https://argocd.example.com`. Get the admin password:
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d && echo
 ```
 
+## Worker Nodes
+
+Workers are managed in a separate state and can be added or removed while the cluster is running.
+
+### First-time setup
+
+```bash
+cd envs/dev/workers
+cp terraform.tfvars.example terraform.tfvars
+```
+
+Edit `terraform.tfvars`:
+
+```
+hcloud_token = "<your-api-token>"
+ssh_key_name = "<name-of-your-hetzner-ssh-key>"
+worker_count = 1
+worker_type  = "cpx22"
+location     = "nbg1"
+```
+
+Then provision:
+
+```bash
+tofu init
+tofu apply
+```
+
+Wait for workers to join:
+
+```bash
+ssh root@<worker-ip> "cloud-init status --wait"
+```
+
+Verify on the server:
+
+```bash
+ssh root@<server-ip> "kubectl get nodes"
+```
+
+### Adding more workers
+
+Increase `worker_count` in `envs/dev/workers/terraform.tfvars` and apply:
+
+```bash
+cd envs/dev/workers
+tofu apply
+```
+
+### Removing all workers
+
+```bash
+cd envs/dev/workers
+tofu destroy
+```
+
+### Scaling down
+
+Decrease `worker_count` and apply. Tofu will remove workers from the highest index first.
+
 ## Shutting Down the Cluster
 
 Destroy only the VM — the floating IP, volume, and all k3s data are preserved:
@@ -142,9 +203,12 @@ ssh root@<server-ip> "cloud-init status --wait"
 ```
 modules/hetzner/
   persistent/     Reusable module: floating IP + volume
-  cluster/        Reusable module: VM + attachments
+  cluster/        Reusable module: server VM + attachments
+  workers/        Reusable module: worker VMs
 envs/dev/
   persistent/     Dev persistent layer (state kept)
   cluster/        Dev cluster layer (ephemeral)
     templates/    cloud-init template
+  workers/        Dev workers layer (ephemeral)
+    templates/    worker cloud-init template
 ```

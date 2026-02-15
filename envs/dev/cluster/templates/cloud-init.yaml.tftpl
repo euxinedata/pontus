@@ -119,7 +119,7 @@ runcmd:
     MANIFEST
 
   # Install k3s
-  - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -s - --write-kubeconfig-mode=644 --data-dir=/mnt/data/k3s
+  - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -s - --write-kubeconfig-mode=644 --data-dir=/mnt/data/k3s --token="${k3s_token}"
 
   # Wait for k3s to be ready
   - until /usr/local/bin/kubectl get nodes 2>/dev/null; do sleep 5; done

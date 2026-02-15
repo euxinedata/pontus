@@ -6,11 +6,20 @@ terraform {
       source  = "hetznercloud/hcloud"
       version = "~> 1.59"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
 
 provider "hcloud" {
   token = var.hcloud_token
+}
+
+resource "random_password" "k3s_token" {
+  length  = 48
+  special = false
 }
 
 data "terraform_remote_state" "persistent" {
@@ -36,6 +45,7 @@ module "cluster" {
     floating_ip       = data.terraform_remote_state.persistent.outputs.floating_ip_address
     letsencrypt_email = var.letsencrypt_email
     argocd_domain     = var.argocd_domain
+    k3s_token         = random_password.k3s_token.result
   })
 
   labels = {
