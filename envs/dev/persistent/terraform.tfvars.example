@@ -1,0 +1,4 @@
+hcloud_token = ""
+name_prefix  = "pontus-dev"
+location     = "fsn1"
+volume_size  = 50
