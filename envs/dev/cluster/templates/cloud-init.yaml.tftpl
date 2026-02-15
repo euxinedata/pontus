@@ -16,6 +16,11 @@ write_files:
       ip addr add "${floating_ip}/32" dev eth0 label eth0:1 2>/dev/null || true
       echo "Floating IP ${floating_ip} configured on eth0:1"
 
+  - path: /root/.bashrc
+    append: true
+    content: |
+      export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
   - path: /etc/systemd/system/floating-ip.service
     content: |
       [Unit]
@@ -30,68 +35,6 @@ write_files:
 
       [Install]
       WantedBy=multi-user.target
-
-  - path: /mnt/data/k3s/server/manifests/traefik-config.yaml
-    content: |
-      apiVersion: helm.cattle.io/v1
-      kind: HelmChartConfig
-      metadata:
-        name: traefik
-        namespace: kube-system
-      spec:
-        valuesContent: |-
-          ports:
-            web:
-              redirections:
-                entryPoint:
-                  to: websecure
-                  scheme: https
-                  permanent: true
-
-  - path: /mnt/data/k3s/server/manifests/argocd-ingress.yaml
-    content: |
-      apiVersion: networking.k8s.io/v1
-      kind: Ingress
-      metadata:
-        name: argocd-server
-        namespace: argocd
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod
-          traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      spec:
-        ingressClassName: traefik
-        tls:
-          - hosts:
-              - ${argocd_domain}
-            secretName: argocd-server-tls
-        rules:
-          - host: ${argocd_domain}
-            http:
-              paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: argocd-server
-                      port:
-                        number: 80
-
-  - path: /mnt/data/k3s/server/manifests/cluster-issuer.yaml
-    content: |
-      apiVersion: cert-manager.io/v1
-      kind: ClusterIssuer
-      metadata:
-        name: letsencrypt-prod
-      spec:
-        acme:
-          server: https://acme-v02.api.letsencrypt.org/directory
-          email: ${letsencrypt_email}
-          privateKeySecretRef:
-            name: letsencrypt-prod
-          solvers:
-            - http01:
-                ingress:
-                  class: traefik
 
 runcmd:
   # Enable and start floating IP service
@@ -109,6 +52,71 @@ runcmd:
       echo "$DEVICE /mnt/data ext4 defaults,nofail 0 2" >> /etc/fstab
       mount /mnt/data
     fi
+
+  # Write k3s auto-deploy manifests (must be after volume mount)
+  - mkdir -p /mnt/data/k3s/server/manifests
+  - |
+    cat > /mnt/data/k3s/server/manifests/traefik-config.yaml <<'MANIFEST'
+    apiVersion: helm.cattle.io/v1
+    kind: HelmChartConfig
+    metadata:
+      name: traefik
+      namespace: kube-system
+    spec:
+      valuesContent: |-
+        ports:
+          web:
+            redirections:
+              entryPoint:
+                to: websecure
+                scheme: https
+                permanent: true
+    MANIFEST
+  - |
+    cat > /mnt/data/k3s/server/manifests/argocd-ingress.yaml <<MANIFEST
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: argocd-server
+      namespace: argocd
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    spec:
+      ingressClassName: traefik
+      tls:
+        - hosts:
+            - ${argocd_domain}
+          secretName: argocd-server-tls
+      rules:
+        - host: ${argocd_domain}
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: argocd-server
+                    port:
+                      number: 80
+    MANIFEST
+  - |
+    cat > /mnt/data/k3s/server/manifests/cluster-issuer.yaml <<MANIFEST
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt-prod
+    spec:
+      acme:
+        server: https://acme-v02.api.letsencrypt.org/directory
+        email: ${letsencrypt_email}
+        privateKeySecretRef:
+          name: letsencrypt-prod
+        solvers:
+          - http01:
+              ingress:
+                class: traefik
+    MANIFEST
 
   # Install k3s
   - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -s - --write-kubeconfig-mode=644 --data-dir=/mnt/data/k3s
