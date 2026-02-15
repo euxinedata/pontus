@@ -1,0 +1,6 @@
+hcloud_token = ""
+ssh_key_name = "my-key"
+server_name  = "pontus-dev-01"
+server_type       = "cpx42"
+letsencrypt_email = "you@example.com"
+argocd_domain     = "argocd.example.com"
