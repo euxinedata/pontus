@@ -118,6 +118,9 @@ runcmd:
                 class: traefik
     MANIFEST
 
+  # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
+  - rm -rf /mnt/data/k3s/server/{db,tls,token,cred}
+
   # Install k3s
   - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -s - --write-kubeconfig-mode=644 --data-dir=/mnt/data/k3s --token="${k3s_token}"
 
