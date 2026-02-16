@@ -17,3 +17,9 @@ output "volume_linux_device" {
   description = "Linux device path of the volume"
   value       = module.persistent.volume_linux_device
 }
+
+output "k3s_token" {
+  description = "k3s cluster token (stable across cluster rebuilds)"
+  value       = random_password.k3s_token.result
+  sensitive   = true
+}

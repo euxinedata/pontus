@@ -34,7 +34,7 @@ envs/dev/
 ## Key Design Decisions
 
 - **Persistent volume at `/mnt/data`**: k3s uses `--data-dir=/mnt/data/k3s` so cluster state (etcd, certificates, secrets) survives VM rebuilds.
-- **k3s token via `random_password`**: Generated in cluster layer, passed to server cloud-init, output for workers to read via remote state.
+- **k3s token via `random_password`**: Generated in persistent layer so the token survives cluster rebuilds. Passed to cluster via remote state, then to server cloud-init, and output for workers to read.
 - **Manifests in `runcmd`, not `write_files`**: cloud-init `write_files` runs before `runcmd`, but the volume mount happens in `runcmd`. Manifests written to `/mnt/data/k3s/server/manifests/` must come after the mount.
 - **ArgoCD insecure mode**: `server.insecure: true` in `argocd-cmd-params-cm`. Traefik terminates TLS; ArgoCD serves plain HTTP on port 80. Avoids TLS-inside-TLS and redirect loops.
 - **HTTP→HTTPS redirect**: Global Traefik entrypoint redirect via `HelmChartConfig` CRD, not per-ingress middleware.
@@ -86,7 +86,7 @@ Each layer directory needs a `terraform.tfvars` (gitignored; copy from `terrafor
 
 - `envs/dev/cluster/templates/cloud-init.yaml.tftpl` — Server bootstrap (k3s, ArgoCD, cert-manager, Helm, k9s, manifests)
 - `envs/dev/workers/templates/cloud-init-worker.yaml.tftpl` — Worker join script
-- `envs/dev/cluster/main.tf` — Server layer with `random_password` for k3s token
+- `envs/dev/cluster/main.tf` — Server layer reading persistent state for token + IP
 - `envs/dev/workers/main.tf` — Workers layer reading cluster state
 - `modules/hetzner/workers/main.tf` — Worker module with destroy-time node cleanup
 
@@ -100,6 +100,6 @@ This means layers must be applied in order and from the same machine.
 
 ## Pitfalls
 
-- When changing the k3s token (e.g., first time adding `--token`), existing bootstrap data on the volume conflicts. Must clear `/mnt/data/k3s/server/{db,tls,token,cred}` and restart k3s.
+- If the k3s token ever changes (e.g., persistent layer recreated), existing bootstrap data on the volume conflicts. Must clear `/mnt/data/k3s/server/{db,tls,token,cred}` and restart k3s.
 - Hetzner server type availability varies by location. If a type is blocked, try the newer generation (e.g., cpx22 instead of cpx21, cpx42 instead of cpx41).
 - Cloud-init `write_files` runs before `runcmd`. Since the volume mount happens in `runcmd`, any files written to the mount path must use `runcmd` (heredoc/cat), not `write_files`.

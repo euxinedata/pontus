@@ -10,6 +10,6 @@ output "floating_ip_address" {
 
 output "k3s_token" {
   description = "k3s join token for worker nodes"
-  value       = random_password.k3s_token.result
+  value       = data.terraform_remote_state.persistent.outputs.k3s_token
   sensitive   = true
 }
