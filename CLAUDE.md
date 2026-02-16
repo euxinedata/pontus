@@ -1,4 +1,8 @@
-# Pontus — Project Context
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
 
 IaC repository for the Euxine Data Platform. Provisions k3s clusters on Hetzner Cloud using OpenTofu and cloud-init.
 
@@ -46,10 +50,18 @@ envs/dev/
 - **Let's Encrypt email**: euxine.data@gmail.com
 - **SSH key**: id_euxinedata@blackstar (pre-existing in Hetzner)
 
-## Operational Commands
+## Build / Apply / Validate Commands
+
+This project uses **OpenTofu** (`tofu`, not `terraform`). There are no tests or linters — validation is via `tofu validate` and `tofu plan`.
 
 ```bash
-# Provision (first time)
+# Validate syntax (run from any layer directory)
+tofu validate
+
+# Preview changes
+tofu plan
+
+# Provision (first time, must be applied in order)
 cd envs/dev/persistent && tofu init && tofu apply
 cd envs/dev/cluster && tofu init && tofu apply
 cd envs/dev/workers && tofu init && tofu apply
@@ -60,14 +72,15 @@ ssh root@<server-ip> "cloud-init status --wait"
 # Destroy/recreate cluster (data persists on volume)
 cd envs/dev/cluster && tofu destroy && tofu apply
 
-# Scale workers
-# Edit worker_count in envs/dev/workers/terraform.tfvars, then:
+# Scale workers — edit worker_count in envs/dev/workers/terraform.tfvars, then:
 cd envs/dev/workers && tofu apply    # scale up
 cd envs/dev/workers && tofu destroy  # remove all
 
 # ArgoCD admin password
 ssh root@<server-ip> "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d"
 ```
+
+Each layer directory needs a `terraform.tfvars` (gitignored; copy from `terraform.tfvars.example`).
 
 ## Important Files
 
@@ -77,8 +90,16 @@ ssh root@<server-ip> "kubectl -n argocd get secret argocd-initial-admin-secret -
 - `envs/dev/workers/main.tf` — Workers layer reading cluster state
 - `modules/hetzner/workers/main.tf` — Worker module with destroy-time node cleanup
 
+## State Dependencies
+
+Layers are chained via `terraform_remote_state` reading local `.tfstate` files:
+- `cluster/main.tf` reads `../persistent/terraform.tfstate` for floating IP and volume IDs.
+- `workers/main.tf` reads `../cluster/terraform.tfstate` for server IP and k3s token.
+
+This means layers must be applied in order and from the same machine.
+
 ## Pitfalls
 
 - When changing the k3s token (e.g., first time adding `--token`), existing bootstrap data on the volume conflicts. Must clear `/mnt/data/k3s/server/{db,tls,token,cred}` and restart k3s.
 - Hetzner server type availability varies by location. If a type is blocked, try the newer generation (e.g., cpx22 instead of cpx21, cpx42 instead of cpx41).
-- `terraform.tfvars` files are gitignored. Each layer needs its own copy (created from `terraform.tfvars.example`).
+- Cloud-init `write_files` runs before `runcmd`. Since the volume mount happens in `runcmd`, any files written to the mount path must use `runcmd` (heredoc/cat), not `write_files`.
