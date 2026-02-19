@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: kolkhis
-          image: ghcr.io/euxinedata/kolkhis:latest
+          image: ghcr.io/euxinedata/kolkhis:e702981
           ports:
             - containerPort: 8000
           livenessProbe:
