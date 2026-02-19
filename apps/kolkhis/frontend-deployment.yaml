@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kolkhis
+  name: kolkhis-frontend
   namespace: kolkhis
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kolkhis
+      app: kolkhis-frontend
   template:
     metadata:
       labels:
-        app: kolkhis
+        app: kolkhis-frontend
     spec:
       containers:
-        - name: kolkhis
-          image: ghcr.io/euxinedata/kolkhis:e702981
+        - name: frontend
+          image: ghcr.io/euxinedata/kolkhis-frontend:latest
           ports:
-            - containerPort: 8000
+            - containerPort: 80
           livenessProbe:
             httpGet:
-              path: /health
-              port: 8000
+              path: /
+              port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /health
-              port: 8000
+              path: /
+              port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
