@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kolkhis
+  namespace: kolkhis
+spec:
+  selector:
+    app: kolkhis
+  ports:
+    - port: 80
+      targetPort: 8000

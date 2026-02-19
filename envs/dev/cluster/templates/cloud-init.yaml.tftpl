@@ -117,6 +117,29 @@ runcmd:
               ingress:
                 class: traefik
     MANIFEST
+  - |
+    cat > /mnt/data/k3s/server/manifests/kolkhis-app.yaml <<'MANIFEST'
+    apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: kolkhis
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/euxinedata/pontus.git
+        targetRevision: main
+        path: apps/kolkhis
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: kolkhis
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true
+    MANIFEST
 
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
   - rm -rf /mnt/data/k3s/server/{db,tls,token,cred}
