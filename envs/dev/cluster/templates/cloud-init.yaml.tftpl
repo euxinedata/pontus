@@ -53,8 +53,9 @@ runcmd:
       mount /mnt/data
     fi
 
-  # Write k3s auto-deploy manifests (must be after volume mount)
+  # Create persistent directories on Hetzner volume
   - mkdir -p /mnt/data/k3s/server/manifests
+  - mkdir -p /mnt/data/postgres
   - |
     cat > /mnt/data/k3s/server/manifests/traefik-config.yaml <<'MANIFEST'
     apiVersion: helm.cattle.io/v1

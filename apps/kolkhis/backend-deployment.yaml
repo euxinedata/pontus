@@ -16,6 +16,12 @@ spec:
       containers:
         - name: backend
           image: ghcr.io/euxinedata/kolkhis-backend:ea41eb8
+          env:
+            - name: DATABASE_URL
+              value: postgresql+asyncpg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)
+          envFrom:
+            - secretRef:
+                name: postgres-credentials
           ports:
             - containerPort: 8000
           livenessProbe:
