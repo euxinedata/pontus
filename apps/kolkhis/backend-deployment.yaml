@@ -17,11 +17,17 @@ spec:
         - name: backend
           image: ghcr.io/euxinedata/kolkhis-backend:90e9995
           env:
-            - name: DATABASE_URL
-              value: postgresql+asyncpg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: FRONTEND_URL
+              value: https://app.euxine.eu
           envFrom:
             - secretRef:
                 name: postgres-credentials
+            - secretRef:
+                name: kolkhis-app-secrets
           ports:
             - containerPort: 8000
           livenessProbe:

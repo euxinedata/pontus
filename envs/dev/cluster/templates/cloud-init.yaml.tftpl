@@ -142,6 +142,21 @@ runcmd:
           - CreateNamespace=true
     MANIFEST
 
+  # Write Kolkhis app secrets (outside ArgoCD sync path)
+  - |
+    cat > /mnt/data/k3s/server/manifests/kolkhis-app-secrets.yaml <<MANIFEST
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: kolkhis-app-secrets
+      namespace: kolkhis
+    type: Opaque
+    stringData:
+      GOOGLE_CLIENT_ID: "${kolkhis_google_client_id}"
+      GOOGLE_CLIENT_SECRET: "${kolkhis_google_client_secret}"
+      JWT_SECRET: "${kolkhis_jwt_secret}"
+    MANIFEST
+
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
   - rm -rf /mnt/data/k3s/server/{db,tls,token,cred}
 

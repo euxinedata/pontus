@@ -36,3 +36,21 @@ variable "argocd_domain" {
   description = "Domain name for ArgoCD web UI"
   type        = string
 }
+
+variable "kolkhis_google_client_id" {
+  description = "Google OAuth client ID for Kolkhis"
+  type        = string
+  sensitive   = true
+}
+
+variable "kolkhis_google_client_secret" {
+  description = "Google OAuth client secret for Kolkhis"
+  type        = string
+  sensitive   = true
+}
+
+variable "kolkhis_jwt_secret" {
+  description = "JWT signing secret for Kolkhis"
+  type        = string
+  sensitive   = true
+}

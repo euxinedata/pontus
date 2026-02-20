@@ -37,6 +37,9 @@ module "cluster" {
     letsencrypt_email = var.letsencrypt_email
     argocd_domain     = var.argocd_domain
     k3s_token         = data.terraform_remote_state.persistent.outputs.k3s_token
+    kolkhis_google_client_id     = var.kolkhis_google_client_id
+    kolkhis_google_client_secret = var.kolkhis_google_client_secret
+    kolkhis_jwt_secret           = var.kolkhis_jwt_secret
   })
 
   labels = {
