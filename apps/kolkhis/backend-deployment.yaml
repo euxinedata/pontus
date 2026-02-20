@@ -13,6 +13,10 @@ spec:
       labels:
         app: kolkhis-backend
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
       containers:
         - name: backend
           image: ghcr.io/euxinedata/kolkhis-backend:90e9995
