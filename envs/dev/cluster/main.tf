@@ -40,6 +40,10 @@ module "cluster" {
     kolkhis_google_client_id     = var.kolkhis_google_client_id
     kolkhis_google_client_secret = var.kolkhis_google_client_secret
     kolkhis_jwt_secret           = var.kolkhis_jwt_secret
+    s3_access_key                = data.terraform_remote_state.persistent.outputs.s3_access_key
+    s3_secret_key                = data.terraform_remote_state.persistent.outputs.s3_secret_key
+    s3_endpoint                  = data.terraform_remote_state.persistent.outputs.s3_endpoint
+    s3_bucket_name               = data.terraform_remote_state.persistent.outputs.s3_bucket_name
   })
 
   labels = {

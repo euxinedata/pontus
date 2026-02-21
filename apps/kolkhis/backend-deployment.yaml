@@ -32,6 +32,8 @@ spec:
                 name: postgres-credentials
             - secretRef:
                 name: kolkhis-app-secrets
+            - secretRef:
+                name: kolkhis-s3-secrets
           ports:
             - containerPort: 8000
           livenessProbe:

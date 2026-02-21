@@ -157,6 +157,22 @@ runcmd:
       JWT_SECRET: "${kolkhis_jwt_secret}"
     MANIFEST
 
+  # Write S3 Object Storage secrets for Kolkhis
+  - |
+    cat > /mnt/data/k3s/server/manifests/kolkhis-s3-secrets.yaml <<MANIFEST
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: kolkhis-s3-secrets
+      namespace: kolkhis
+    type: Opaque
+    stringData:
+      S3_ACCESS_KEY: "${s3_access_key}"
+      S3_SECRET_KEY: "${s3_secret_key}"
+      S3_ENDPOINT: "${s3_endpoint}"
+      S3_BUCKET_NAME: "${s3_bucket_name}"
+    MANIFEST
+
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
   - rm -rf /mnt/data/k3s/server/{db,tls,token,cred}
 

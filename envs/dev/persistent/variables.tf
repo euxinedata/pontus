@@ -21,3 +21,15 @@ variable "volume_size" {
   type        = number
   default     = 50
 }
+
+variable "s3_access_key" {
+  description = "Hetzner Object Storage access key"
+  type        = string
+  sensitive   = true
+}
+
+variable "s3_secret_key" {
+  description = "Hetzner Object Storage secret key"
+  type        = string
+  sensitive   = true
+}

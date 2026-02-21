@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.6"
     }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
   }
 }
 
@@ -33,4 +37,12 @@ module "persistent" {
     environment = "dev"
     managed_by  = "opentofu"
   }
+}
+
+module "object_storage" {
+  source      = "../../../modules/hetzner/object-storage"
+  bucket_name = "${var.name_prefix}-iceberg"
+  location    = var.location
+  access_key  = var.s3_access_key
+  secret_key  = var.s3_secret_key
 }
