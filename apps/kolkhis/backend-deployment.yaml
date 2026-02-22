@@ -19,7 +19,7 @@ spec:
           command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
       containers:
         - name: backend
-          image: ghcr.io/euxinedata/kolkhis-backend:5e123e7
+          image: ghcr.io/euxinedata/kolkhis-backend:f6b9121
           env:
             - name: POSTGRES_HOST
               value: postgres
