@@ -171,6 +171,7 @@ runcmd:
       S3_SECRET_KEY: "${s3_secret_key}"
       S3_ENDPOINT: "${s3_endpoint}"
       S3_BUCKET_NAME: "${s3_bucket_name}"
+      WAREHOUSE_PATH: "s3://${s3_bucket_name}"
     MANIFEST
 
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
