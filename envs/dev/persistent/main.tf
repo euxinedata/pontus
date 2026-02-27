@@ -46,3 +46,11 @@ module "object_storage" {
   access_key  = var.s3_access_key
   secret_key  = var.s3_secret_key
 }
+
+module "results_storage" {
+  source      = "../../../modules/hetzner/object-storage"
+  bucket_name = "${var.name_prefix}-results"
+  location    = var.location
+  access_key  = var.s3_access_key
+  secret_key  = var.s3_secret_key
+}

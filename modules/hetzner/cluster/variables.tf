@@ -40,6 +40,11 @@ variable "volume_id" {
   type        = number
 }
 
+variable "network_id" {
+  description = "ID of the private network to attach to"
+  type        = number
+}
+
 variable "labels" {
   description = "Labels to apply to all resources"
   type        = map(string)

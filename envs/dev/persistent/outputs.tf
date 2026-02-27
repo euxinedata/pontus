@@ -45,3 +45,13 @@ output "s3_secret_key" {
   value       = var.s3_secret_key
   sensitive   = true
 }
+
+output "network_id" {
+  description = "ID of the private network"
+  value       = module.persistent.network_id
+}
+
+output "s3_results_bucket_name" {
+  description = "Name of the S3 bucket for query results"
+  value       = module.results_storage.bucket_name
+}

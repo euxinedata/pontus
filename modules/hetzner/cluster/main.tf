@@ -31,3 +31,8 @@ resource "hcloud_volume_attachment" "main" {
   server_id = hcloud_server.main.id
   automount = false
 }
+
+resource "hcloud_server_network" "main" {
+  server_id  = hcloud_server.main.id
+  network_id = var.network_id
+}

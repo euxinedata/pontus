@@ -31,6 +31,7 @@ module "cluster" {
 
   floating_ip_id = data.terraform_remote_state.persistent.outputs.floating_ip_id
   volume_id      = data.terraform_remote_state.persistent.outputs.volume_id
+  network_id     = data.terraform_remote_state.persistent.outputs.network_id
 
   cloud_init = templatefile("${path.module}/templates/cloud-init.yaml.tftpl", {
     floating_ip       = data.terraform_remote_state.persistent.outputs.floating_ip_address
@@ -44,6 +45,11 @@ module "cluster" {
     s3_secret_key                = data.terraform_remote_state.persistent.outputs.s3_secret_key
     s3_endpoint                  = data.terraform_remote_state.persistent.outputs.s3_endpoint
     s3_bucket_name               = data.terraform_remote_state.persistent.outputs.s3_bucket_name
+    hcloud_token                 = var.hcloud_token
+    worker_auth_token            = var.worker_auth_token
+    worker_snapshot_id           = var.worker_snapshot_id
+    worker_network_id            = data.terraform_remote_state.persistent.outputs.network_id
+    s3_results_bucket            = data.terraform_remote_state.persistent.outputs.s3_results_bucket_name
   })
 
   labels = {

@@ -174,6 +174,23 @@ runcmd:
       WAREHOUSE_PATH: "s3://${s3_bucket_name}"
     MANIFEST
 
+  # Write worker config secrets
+  - |
+    cat > /mnt/data/k3s/server/manifests/kolkhis-worker-secrets.yaml <<MANIFEST
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: kolkhis-worker-secrets
+      namespace: kolkhis
+    type: Opaque
+    stringData:
+      HCLOUD_TOKEN: "${hcloud_token}"
+      WORKER_AUTH_TOKEN: "${worker_auth_token}"
+      WORKER_SNAPSHOT_ID: "${worker_snapshot_id}"
+      WORKER_NETWORK_ID: "${worker_network_id}"
+      S3_RESULTS_BUCKET: "${s3_results_bucket}"
+    MANIFEST
+
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
   - rm -rf /mnt/data/k3s/server/{db,tls,token,cred}
 

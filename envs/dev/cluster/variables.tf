@@ -55,3 +55,14 @@ variable "kolkhis_jwt_secret" {
   sensitive   = true
 }
 
+variable "worker_auth_token" {
+  description = "Auth token for worker VMs"
+  type        = string
+  sensitive   = true
+}
+
+variable "worker_snapshot_id" {
+  description = "Hetzner snapshot ID for worker VM image"
+  type        = string
+}
+
