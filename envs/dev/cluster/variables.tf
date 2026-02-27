@@ -59,10 +59,12 @@ variable "worker_auth_token" {
   description = "Auth token for worker VMs"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "worker_snapshot_id" {
   description = "Hetzner snapshot ID for worker VM image"
   type        = string
+  default     = ""
 }
 

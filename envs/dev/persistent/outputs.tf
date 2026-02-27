@@ -52,6 +52,6 @@ output "network_id" {
 }
 
 output "s3_results_bucket_name" {
-  description = "Name of the S3 bucket for query results"
-  value       = module.results_storage.bucket_name
+  description = "Name of the S3 bucket for query results (uses iceberg bucket with results/ prefix)"
+  value       = module.object_storage.bucket_name
 }
