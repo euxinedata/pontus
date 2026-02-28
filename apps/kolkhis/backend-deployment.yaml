@@ -29,6 +29,10 @@ spec:
               value: https://app.euxine.eu
             - name: WORKER_MODE
               value: remote
+            - name: WORKER_LOCATION
+              value: nbg1
+            - name: WORKER_SERVER_TYPE
+              value: cpx22
           envFrom:
             - secretRef:
                 name: postgres-credentials
