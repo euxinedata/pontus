@@ -50,6 +50,7 @@ module "cluster" {
     worker_snapshot_id           = var.worker_snapshot_id
     worker_network_id            = data.terraform_remote_state.persistent.outputs.network_id
     s3_results_bucket            = data.terraform_remote_state.persistent.outputs.s3_results_bucket_name
+    s3_region                    = var.location
   })
 
   labels = {
