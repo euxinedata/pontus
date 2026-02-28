@@ -27,6 +27,8 @@ spec:
               value: "5432"
             - name: FRONTEND_URL
               value: https://app.euxine.eu
+            - name: WORKER_MODE
+              value: remote
           envFrom:
             - secretRef:
                 name: postgres-credentials
@@ -34,6 +36,8 @@ spec:
                 name: kolkhis-app-secrets
             - secretRef:
                 name: kolkhis-s3-secrets
+            - secretRef:
+                name: kolkhis-worker-secrets
           ports:
             - containerPort: 8000
           livenessProbe:
