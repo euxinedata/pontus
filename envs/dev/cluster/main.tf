@@ -51,6 +51,9 @@ module "cluster" {
     worker_network_id            = data.terraform_remote_state.persistent.outputs.network_id
     s3_results_bucket            = data.terraform_remote_state.persistent.outputs.s3_results_bucket_name
     s3_region                    = var.location
+    gitea_admin_user             = var.gitea_admin_user
+    gitea_admin_password         = var.gitea_admin_password
+    gitea_admin_email            = var.gitea_admin_email
   })
 
   labels = {

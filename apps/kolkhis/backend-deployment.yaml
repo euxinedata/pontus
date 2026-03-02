@@ -50,6 +50,8 @@ spec:
               value: nbg1
             - name: WORKER_SERVER_TYPE
               value: cpx42
+            - name: GITEA_URL
+              value: http://gitea:3000
           envFrom:
             - secretRef:
                 name: postgres-credentials
@@ -59,6 +61,8 @@ spec:
                 name: kolkhis-s3-secrets
             - secretRef:
                 name: kolkhis-worker-secrets
+            - secretRef:
+                name: gitea-credentials
           ports:
             - containerPort: 8000
           livenessProbe:

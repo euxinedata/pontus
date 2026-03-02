@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+  namespace: kolkhis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea
+  template:
+    metadata:
+      labels:
+        app: gitea
+    spec:
+      initContainers:
+        - name: create-db
+          image: postgres:16-alpine
+          command: ["sh", "-c"]
+          args:
+            - |
+              PGPASSWORD="$POSTGRES_PASSWORD" psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tc \
+                "SELECT 1 FROM pg_database WHERE datname = 'gitea'" | grep -q 1 || \
+              PGPASSWORD="$POSTGRES_PASSWORD" psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+                "CREATE DATABASE gitea"
+          envFrom:
+            - secretRef:
+                name: postgres-credentials
+        - name: bootstrap-admin
+          image: gitea/gitea:1.23-rootless
+          command: ["sh", "-c"]
+          args:
+            - |
+              gitea admin user list --admin 2>/dev/null | grep -q "$GITEA_ADMIN_USER" && exit 0
+              gitea admin user create \
+                --username "$GITEA_ADMIN_USER" \
+                --password "$GITEA_ADMIN_PASSWORD" \
+                --email "$GITEA_ADMIN_EMAIL" \
+                --admin
+          env:
+            - name: GITEA__database__DB_TYPE
+              value: postgres
+            - name: GITEA__database__HOST
+              value: postgres:5432
+            - name: GITEA__database__NAME
+              value: gitea
+            - name: GITEA__database__USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+            - name: GITEA__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+            - name: GITEA_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-credentials
+                  key: GITEA_ADMIN_USER
+            - name: GITEA_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-credentials
+                  key: GITEA_ADMIN_PASSWORD
+            - name: GITEA_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-credentials
+                  key: GITEA_ADMIN_EMAIL
+          volumeMounts:
+            - name: gitea-data
+              mountPath: /var/lib/gitea
+      containers:
+        - name: gitea
+          image: gitea/gitea:1.23-rootless
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GITEA__database__DB_TYPE
+              value: postgres
+            - name: GITEA__database__HOST
+              value: postgres:5432
+            - name: GITEA__database__NAME
+              value: gitea
+            - name: GITEA__database__USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+            - name: GITEA__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+            - name: GITEA__server__DISABLE_SSH
+              value: "true"
+            - name: GITEA__server__ROOT_URL
+              value: http://gitea:3000
+            - name: GITEA__service__DISABLE_REGISTRATION
+              value: "true"
+          volumeMounts:
+            - name: gitea-data
+              mountPath: /var/lib/gitea
+          livenessProbe:
+            httpGet:
+              path: /api/v1/version
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/version
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: gitea-data
+          persistentVolumeClaim:
+            claimName: gitea-pvc

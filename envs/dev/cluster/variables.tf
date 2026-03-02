@@ -68,3 +68,21 @@ variable "worker_snapshot_id" {
   default     = ""
 }
 
+variable "gitea_admin_user" {
+  description = "Gitea admin username"
+  type        = string
+  default     = "kolkhis-admin"
+}
+
+variable "gitea_admin_password" {
+  description = "Gitea admin password"
+  type        = string
+  sensitive   = true
+}
+
+variable "gitea_admin_email" {
+  description = "Gitea admin email"
+  type        = string
+  default     = "admin@kolkhis.local"
+}
+

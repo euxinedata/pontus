@@ -56,6 +56,7 @@ runcmd:
   # Create persistent directories on Hetzner volume
   - mkdir -p /mnt/data/k3s/server/manifests
   - mkdir -p /mnt/data/postgres
+  - mkdir -p /mnt/data/gitea
   - |
     cat > /mnt/data/k3s/server/manifests/traefik-config.yaml <<'MANIFEST'
     apiVersion: helm.cattle.io/v1
@@ -190,6 +191,21 @@ runcmd:
       WORKER_SNAPSHOT_ID: "${worker_snapshot_id}"
       WORKER_NETWORK_ID: "${worker_network_id}"
       S3_RESULTS_BUCKET: "${s3_results_bucket}"
+    MANIFEST
+
+  # Write Gitea credentials secret
+  - |
+    cat > /mnt/data/k3s/server/manifests/gitea-credentials.yaml <<MANIFEST
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: gitea-credentials
+      namespace: kolkhis
+    type: Opaque
+    stringData:
+      GITEA_ADMIN_USER: "${gitea_admin_user}"
+      GITEA_ADMIN_PASSWORD: "${gitea_admin_password}"
+      GITEA_ADMIN_EMAIL: "${gitea_admin_email}"
     MANIFEST
 
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
