@@ -65,6 +65,20 @@ spec:
           envFrom:
             - secretRef:
                 name: gitea-credentials
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  - |
+                    until wget -qO /dev/null http://localhost:3000/api/v1/version 2>/dev/null; do sleep 2; done
+                    gitea admin user list --admin 2>/dev/null | grep -q "$GITEA_ADMIN_USER" && exit 0
+                    gitea admin user create \
+                      --username "$GITEA_ADMIN_USER" \
+                      --password "$GITEA_ADMIN_PASSWORD" \
+                      --email "$GITEA_ADMIN_EMAIL" \
+                      --admin || true
           volumeMounts:
             - name: gitea-data
               mountPath: /var/lib/gitea
