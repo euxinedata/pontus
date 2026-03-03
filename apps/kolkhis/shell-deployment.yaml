@@ -13,6 +13,21 @@ spec:
       labels:
         app: kolkhis-shell
     spec:
+      initContainers:
+        - name: fix-ssh-owner
+          image: busybox:1.37
+          command: ["sh", "-c"]
+          args:
+            - |
+              cp /secret/authorized_keys /ssh/authorized_keys
+              chown 1000:1000 /ssh/authorized_keys
+              chmod 600 /ssh/authorized_keys
+          volumeMounts:
+            - name: ssh-keys
+              mountPath: /secret
+              readOnly: true
+            - name: ssh-dir
+              mountPath: /ssh
       containers:
         - name: shell
           image: ghcr.io/euxinedata/kolkhis-shell:latest
@@ -21,10 +36,8 @@ spec:
           volumeMounts:
             - name: projects
               mountPath: /home/shelluser/projects
-            - name: ssh-keys
-              mountPath: /home/shelluser/.ssh/authorized_keys
-              subPath: authorized_keys
-              readOnly: true
+            - name: ssh-dir
+              mountPath: /home/shelluser/.ssh
       volumes:
         - name: projects
           persistentVolumeClaim:
@@ -32,4 +45,5 @@ spec:
         - name: ssh-keys
           secret:
             secretName: shell-ssh-keys
-            defaultMode: 0600
+        - name: ssh-dir
+          emptyDir: {}
