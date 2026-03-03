@@ -35,14 +35,14 @@ spec:
           ports:
             - containerPort: 22
           volumeMounts:
-            - name: projects
-              mountPath: /home/shelluser/projects
+            - name: homes
+              mountPath: /home
             - name: ssh-dir
               mountPath: /home/shelluser/.ssh
       volumes:
-        - name: projects
+        - name: homes
           persistentVolumeClaim:
-            claimName: projects-pvc
+            claimName: homes-pvc
         - name: ssh-keys
           secret:
             secretName: shell-ssh-keys

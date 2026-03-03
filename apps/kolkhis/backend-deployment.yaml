@@ -60,8 +60,8 @@ spec:
               value: shelluser
             - name: SHELL_SSH_KEY_PATH
               value: /etc/shell-ssh/id_ed25519
-            - name: PROJECTS_PATH
-              value: /app/data/projects
+            - name: HOMES_PATH
+              value: /app/data/homes
           envFrom:
             - secretRef:
                 name: postgres-credentials
@@ -88,16 +88,16 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
           volumeMounts:
-            - name: projects
-              mountPath: /app/data/projects
+            - name: homes
+              mountPath: /app/data/homes
             - name: shell-ssh-key
               mountPath: /etc/shell-ssh/id_ed25519
               subPath: id_ed25519
               readOnly: true
       volumes:
-        - name: projects
+        - name: homes
           persistentVolumeClaim:
-            claimName: projects-pvc
+            claimName: homes-pvc
         - name: shell-ssh-key
           secret:
             secretName: shell-ssh-keys
