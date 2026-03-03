@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/euxinedata/kolkhis-frontend:5610a46
+          image: ghcr.io/euxinedata/kolkhis-frontend:808b8dc
           ports:
             - containerPort: 80
           livenessProbe:
