@@ -20,7 +20,8 @@ spec:
           args:
             - |
               cp /secret/authorized_keys /ssh/authorized_keys
-              chown 1000:1000 /ssh/authorized_keys
+              chown -R 1000:1000 /ssh
+              chmod 700 /ssh
               chmod 600 /ssh/authorized_keys
           volumeMounts:
             - name: ssh-keys
