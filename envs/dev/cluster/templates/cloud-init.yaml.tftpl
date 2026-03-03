@@ -57,6 +57,7 @@ runcmd:
   - mkdir -p /mnt/data/k3s/server/manifests
   - mkdir -p /mnt/data/postgres
   - mkdir -p /mnt/data/gitea
+  - mkdir -p /mnt/data/projects
   - |
     cat > /mnt/data/k3s/server/manifests/traefik-config.yaml <<'MANIFEST'
     apiVersion: helm.cattle.io/v1
@@ -191,6 +192,20 @@ runcmd:
       WORKER_SNAPSHOT_ID: "${worker_snapshot_id}"
       WORKER_NETWORK_ID: "${worker_network_id}"
       S3_RESULTS_BUCKET: "${s3_results_bucket}"
+    MANIFEST
+
+  # Write shell SSH keys secret
+  - |
+    cat > /mnt/data/k3s/server/manifests/shell-ssh-keys.yaml <<MANIFEST
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: shell-ssh-keys
+      namespace: kolkhis
+    type: Opaque
+    stringData:
+      id_ed25519: "${shell_ssh_private_key}"
+      authorized_keys: "${shell_ssh_public_key}"
     MANIFEST
 
   # Write Gitea credentials secret

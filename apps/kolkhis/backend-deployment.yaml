@@ -52,6 +52,16 @@ spec:
               value: cpx42
             - name: GITEA_URL
               value: http://gitea:3000
+            - name: SHELL_SSH_HOST
+              value: shell
+            - name: SHELL_SSH_PORT
+              value: "22"
+            - name: SHELL_SSH_USER
+              value: shelluser
+            - name: SHELL_SSH_KEY_PATH
+              value: /etc/shell-ssh/id_ed25519
+            - name: PROJECTS_PATH
+              value: /app/data/projects
           envFrom:
             - secretRef:
                 name: postgres-credentials
@@ -77,3 +87,18 @@ spec:
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 10
+          volumeMounts:
+            - name: projects
+              mountPath: /app/data/projects
+            - name: shell-ssh-key
+              mountPath: /etc/shell-ssh/id_ed25519
+              subPath: id_ed25519
+              readOnly: true
+      volumes:
+        - name: projects
+          persistentVolumeClaim:
+            claimName: projects-pvc
+        - name: shell-ssh-key
+          secret:
+            secretName: shell-ssh-keys
+            defaultMode: 0400

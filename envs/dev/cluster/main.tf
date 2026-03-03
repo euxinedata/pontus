@@ -54,6 +54,8 @@ module "cluster" {
     gitea_admin_user             = var.gitea_admin_user
     gitea_admin_password         = var.gitea_admin_password
     gitea_admin_email            = var.gitea_admin_email
+    shell_ssh_private_key        = var.shell_ssh_private_key
+    shell_ssh_public_key         = var.shell_ssh_public_key
   })
 
   labels = {

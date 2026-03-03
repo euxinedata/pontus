@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kolkhis-shell
+  namespace: kolkhis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kolkhis-shell
+  template:
+    metadata:
+      labels:
+        app: kolkhis-shell
+    spec:
+      containers:
+        - name: shell
+          image: ghcr.io/euxinedata/kolkhis-shell:latest
+          ports:
+            - containerPort: 22
+          volumeMounts:
+            - name: projects
+              mountPath: /home/shelluser/projects
+            - name: ssh-keys
+              mountPath: /home/shelluser/.ssh/authorized_keys
+              subPath: authorized_keys
+              readOnly: true
+      volumes:
+        - name: projects
+          persistentVolumeClaim:
+            claimName: projects-pvc
+        - name: ssh-keys
+          secret:
+            secretName: shell-ssh-keys
+            defaultMode: 0600

@@ -86,3 +86,14 @@ variable "gitea_admin_email" {
   default     = "admin@kolkhis.local"
 }
 
+variable "shell_ssh_private_key" {
+  description = "SSH private key (ed25519) for backend to connect to shell pod"
+  type        = string
+  sensitive   = true
+}
+
+variable "shell_ssh_public_key" {
+  description = "SSH public key (ed25519) for shell pod authorized_keys"
+  type        = string
+}
+
