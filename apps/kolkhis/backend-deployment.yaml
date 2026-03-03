@@ -18,7 +18,7 @@ spec:
           image: postgres:16-alpine
           command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
         - name: run-migrations
-          image: ghcr.io/euxinedata/kolkhis-backend:f4da2f9
+          image: ghcr.io/euxinedata/kolkhis-backend:c097936
           command: ["uv", "run", "alembic", "upgrade", "head"]
           env:
             - name: POSTGRES_HOST
@@ -36,7 +36,7 @@ spec:
                 name: kolkhis-worker-secrets
       containers:
         - name: backend
-          image: ghcr.io/euxinedata/kolkhis-backend:f4da2f9
+          image: ghcr.io/euxinedata/kolkhis-backend:c097936
           env:
             - name: POSTGRES_HOST
               value: postgres
