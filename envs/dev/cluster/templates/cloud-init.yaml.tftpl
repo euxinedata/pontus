@@ -58,6 +58,7 @@ runcmd:
   - mkdir -p /mnt/data/postgres
   - mkdir -p /mnt/data/gitea
   - mkdir -p /mnt/data/projects
+  - mkdir -p /mnt/data/homes
   - |
     cat > /mnt/data/k3s/server/manifests/traefik-config.yaml <<'MANIFEST'
     apiVersion: helm.cattle.io/v1
