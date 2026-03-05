@@ -56,6 +56,11 @@ module "cluster" {
     gitea_admin_email            = var.gitea_admin_email
     shell_ssh_private_key        = var.shell_ssh_private_key
     shell_ssh_public_key         = var.shell_ssh_public_key
+    dagster_pg_username          = var.dagster_pg_username
+    dagster_pg_password          = var.dagster_pg_password
+    dagster_pg_host              = var.dagster_pg_host
+    dagster_pg_db                = var.dagster_pg_db
+    dagster_image                = var.dagster_image
   })
 
   labels = {
