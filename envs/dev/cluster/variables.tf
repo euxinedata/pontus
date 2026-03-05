@@ -97,3 +97,33 @@ variable "shell_ssh_public_key" {
   type        = string
 }
 
+variable "dagster_pg_username" {
+  description = "PostgreSQL username for Dagster"
+  type        = string
+  default     = "kolkhis"
+}
+
+variable "dagster_pg_password" {
+  description = "PostgreSQL password for Dagster"
+  type        = string
+  sensitive   = true
+}
+
+variable "dagster_pg_host" {
+  description = "PostgreSQL host for Dagster"
+  type        = string
+  default     = "postgres"
+}
+
+variable "dagster_pg_db" {
+  description = "PostgreSQL database name for Dagster"
+  type        = string
+  default     = "dagster"
+}
+
+variable "dagster_image" {
+  description = "Docker image for Dagster"
+  type        = string
+  default     = "ghcr.io/euxinedata/dagster:latest"
+}
+

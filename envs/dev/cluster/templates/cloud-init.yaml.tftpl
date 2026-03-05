@@ -224,6 +224,23 @@ runcmd:
       GITEA_ADMIN_EMAIL: "${gitea_admin_email}"
     MANIFEST
 
+  # Write Dagster credentials secret
+  - |
+    cat > /mnt/data/k3s/server/manifests/dagster-credentials.yaml <<MANIFEST
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: dagster-credentials
+      namespace: kolkhis
+    type: Opaque
+    stringData:
+      DAGSTER_PG_USERNAME: "${dagster_pg_username}"
+      DAGSTER_PG_PASSWORD: "${dagster_pg_password}"
+      DAGSTER_PG_HOST: "${dagster_pg_host}"
+      DAGSTER_PG_DB: "${dagster_pg_db}"
+      DAGSTER_IMAGE: "${dagster_image}"
+    MANIFEST
+
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
   - rm -rf /mnt/data/k3s/server/{db,tls,token,cred}
 

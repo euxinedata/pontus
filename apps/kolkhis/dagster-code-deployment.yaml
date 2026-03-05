@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dagster-code
+  namespace: kolkhis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dagster-code
+  template:
+    metadata:
+      labels:
+        app: dagster-code
+    spec:
+      serviceAccountName: dagster
+      initContainers:
+        - name: create-db
+          image: postgres:16-alpine
+          command: ["sh", "-c"]
+          args:
+            - |
+              PGPASSWORD="$POSTGRES_PASSWORD" psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tc \
+                "SELECT 1 FROM pg_database WHERE datname = 'dagster'" | grep -q 1 || \
+              PGPASSWORD="$POSTGRES_PASSWORD" psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+                "CREATE DATABASE dagster"
+          envFrom:
+            - secretRef:
+                name: postgres-credentials
+      containers:
+        - name: dagster-code
+          image: ghcr.io/euxinedata/dagster:latest
+          command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "3030"]
+          ports:
+            - containerPort: 3030
+          envFrom:
+            - secretRef:
+                name: dagster-credentials
+          volumeMounts:
+            - name: dagster-instance
+              mountPath: /opt/dagster/dagster.yaml
+              subPath: dagster.yaml
+          livenessProbe:
+            tcpSocket:
+              port: 3030
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 3030
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: dagster-instance
+          configMap:
+            name: dagster-instance

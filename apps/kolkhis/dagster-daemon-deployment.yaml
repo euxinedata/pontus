@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dagster-daemon
+  namespace: kolkhis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dagster-daemon
+  template:
+    metadata:
+      labels:
+        app: dagster-daemon
+    spec:
+      serviceAccountName: dagster
+      containers:
+        - name: dagster-daemon
+          image: ghcr.io/euxinedata/dagster:latest
+          command: ["dagster-daemon", "run", "-w", "/opt/dagster/workspace.yaml"]
+          envFrom:
+            - secretRef:
+                name: dagster-credentials
+          volumeMounts:
+            - name: dagster-instance
+              mountPath: /opt/dagster/dagster.yaml
+              subPath: dagster.yaml
+      volumes:
+        - name: dagster-instance
+          configMap:
+            name: dagster-instance
