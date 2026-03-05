@@ -77,7 +77,7 @@ runcmd:
                 permanent: true
     MANIFEST
   - |
-    cat > /mnt/data/k3s/server/manifests/argocd-ingress.yaml <<MANIFEST
+    cat > /mnt/data/k3s/server/manifests/argocd-ingress.yaml <<'MANIFEST'
     apiVersion: networking.k8s.io/v1
     kind: Ingress
     metadata:
@@ -105,7 +105,7 @@ runcmd:
                       number: 80
     MANIFEST
   - |
-    cat > /mnt/data/k3s/server/manifests/cluster-issuer.yaml <<MANIFEST
+    cat > /mnt/data/k3s/server/manifests/cluster-issuer.yaml <<'MANIFEST'
     apiVersion: cert-manager.io/v1
     kind: ClusterIssuer
     metadata:
@@ -147,7 +147,7 @@ runcmd:
 
   # Write Kolkhis app secrets (outside ArgoCD sync path)
   - |
-    cat > /mnt/data/k3s/server/manifests/kolkhis-app-secrets.yaml <<MANIFEST
+    cat > /mnt/data/k3s/server/manifests/kolkhis-app-secrets.yaml <<'MANIFEST'
     apiVersion: v1
     kind: Secret
     metadata:
@@ -162,7 +162,7 @@ runcmd:
 
   # Write S3 Object Storage secrets for Kolkhis
   - |
-    cat > /mnt/data/k3s/server/manifests/kolkhis-s3-secrets.yaml <<MANIFEST
+    cat > /mnt/data/k3s/server/manifests/kolkhis-s3-secrets.yaml <<'MANIFEST'
     apiVersion: v1
     kind: Secret
     metadata:
@@ -180,7 +180,7 @@ runcmd:
 
   # Write worker config secrets
   - |
-    cat > /mnt/data/k3s/server/manifests/kolkhis-worker-secrets.yaml <<MANIFEST
+    cat > /mnt/data/k3s/server/manifests/kolkhis-worker-secrets.yaml <<'MANIFEST'
     apiVersion: v1
     kind: Secret
     metadata:
@@ -197,7 +197,7 @@ runcmd:
 
   # Write shell SSH keys secret
   - |
-    cat > /mnt/data/k3s/server/manifests/shell-ssh-keys.yaml <<MANIFEST
+    cat > /mnt/data/k3s/server/manifests/shell-ssh-keys.yaml <<'MANIFEST'
     apiVersion: v1
     kind: Secret
     metadata:
@@ -211,7 +211,7 @@ runcmd:
 
   # Write Gitea credentials secret
   - |
-    cat > /mnt/data/k3s/server/manifests/gitea-credentials.yaml <<MANIFEST
+    cat > /mnt/data/k3s/server/manifests/gitea-credentials.yaml <<'MANIFEST'
     apiVersion: v1
     kind: Secret
     metadata:
@@ -226,7 +226,7 @@ runcmd:
 
   # Write Dagster credentials secret
   - |
-    cat > /mnt/data/k3s/server/manifests/dagster-credentials.yaml <<MANIFEST
+    cat > /mnt/data/k3s/server/manifests/dagster-credentials.yaml <<'MANIFEST'
     apiVersion: v1
     kind: Secret
     metadata:
