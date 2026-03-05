@@ -133,8 +133,4 @@ variable "lakekeeper_pg_encryption_key" {
   sensitive   = true
 }
 
-variable "shell_org_uuid" {
-  description = "Organization UUID for shell container homes mount"
-  type        = string
-}
 
