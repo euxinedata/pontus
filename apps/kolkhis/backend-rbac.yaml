@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kolkhis-backend
+  namespace: kolkhis
+---
+# ClusterRole: needed for creating PersistentVolumes (cluster-scoped)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kolkhis-shell-provisioner
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["create", "get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kolkhis-shell-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: kolkhis-backend
+    namespace: kolkhis
+roleRef:
+  kind: ClusterRole
+  name: kolkhis-shell-provisioner
+  apiGroup: rbac.authorization.k8s.io
+---
+# Role: namespace-scoped resources (PVCs, Deployments, Services)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kolkhis-shell-provisioner
+  namespace: kolkhis
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims", "services"]
+    verbs: ["create", "get", "list", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["create", "get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kolkhis-shell-provisioner
+  namespace: kolkhis
+subjects:
+  - kind: ServiceAccount
+    name: kolkhis-backend
+    namespace: kolkhis
+roleRef:
+  kind: Role
+  name: kolkhis-shell-provisioner
+  apiGroup: rbac.authorization.k8s.io

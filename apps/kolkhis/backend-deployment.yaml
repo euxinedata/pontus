@@ -13,6 +13,7 @@ spec:
       labels:
         app: kolkhis-backend
     spec:
+      serviceAccountName: kolkhis-backend
       initContainers:
         - name: wait-for-postgres
           image: postgres:16-alpine
@@ -52,6 +53,8 @@ spec:
               value: cpx42
             - name: GITEA_URL
               value: http://gitea:3000
+            - name: SHELL_MODE
+              value: k8s
             - name: SHELL_SSH_HOST
               value: shell
             - name: SHELL_SSH_PORT
