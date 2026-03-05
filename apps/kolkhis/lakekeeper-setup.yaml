@@ -23,6 +23,13 @@ spec:
           command: ["sh", "-c"]
           args:
             - |
+              # Create default project (idempotent — 409 if exists)
+              curl -sf http://lakekeeper:8181/management/v1/project \
+                -H 'Content-Type: application/json' \
+                -d '{"project-id": "00000000-0000-0000-0000-000000000000", "project-name": "default"}' \
+                || echo "Project already exists"
+
+              # Create warehouse
               curl -sf http://lakekeeper:8181/management/v1/warehouse \
                 -H 'Content-Type: application/json' \
                 -H 'X-Project-Id: 00000000-0000-0000-0000-000000000000' \
