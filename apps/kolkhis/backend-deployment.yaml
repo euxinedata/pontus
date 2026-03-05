@@ -71,6 +71,8 @@ spec:
               value: http://gitea:3000
             - name: LAKEKEEPER_URL
               value: http://lakekeeper:8181
+            - name: LAKEKEEPER_WORKER_URL
+              value: http://10.0.2.1:30181
           envFrom:
             - secretRef:
                 name: postgres-credentials
