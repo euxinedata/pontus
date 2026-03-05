@@ -18,9 +18,16 @@ spec:
           image: ghcr.io/euxinedata/kolkhis-shell:latest
           ports:
             - containerPort: 22
+          env:
+            - name: SHELL_ORG_UUID
+              valueFrom:
+                secretKeyRef:
+                  name: kolkhis-app-secrets
+                  key: SHELL_ORG_UUID
           volumeMounts:
             - name: homes
               mountPath: /home
+              subPathExpr: "$(SHELL_ORG_UUID)"
       volumes:
         - name: homes
           persistentVolumeClaim:

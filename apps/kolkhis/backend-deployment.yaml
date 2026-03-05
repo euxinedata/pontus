@@ -66,6 +66,8 @@ spec:
               value: http://kolkhis-backend
             - name: GITEA_SHELL_URL
               value: http://gitea:3000
+            - name: LAKEKEEPER_URL
+              value: http://lakekeeper:8181
           envFrom:
             - secretRef:
                 name: postgres-credentials

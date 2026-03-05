@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lakekeeper
+  namespace: kolkhis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lakekeeper
+  template:
+    metadata:
+      labels:
+        app: lakekeeper
+    spec:
+      initContainers:
+        - name: create-db
+          image: postgres:16-alpine
+          command: ["sh", "-c"]
+          args:
+            - |
+              PGPASSWORD="$POSTGRES_PASSWORD" psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tc \
+                "SELECT 1 FROM pg_database WHERE datname = 'lakekeeper'" | grep -q 1 || \
+              PGPASSWORD="$POSTGRES_PASSWORD" psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+                "CREATE DATABASE lakekeeper"
+          envFrom:
+            - secretRef:
+                name: postgres-credentials
+        - name: migrate
+          image: quay.io/lakekeeper/catalog:latest
+          command: ["migrate"]
+          env:
+            - name: LAKEKEEPER__PG_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lakekeeper-secrets
+                  key: LAKEKEEPER_PG_ENCRYPTION_KEY
+            - name: LAKEKEEPER__PG_DATABASE_URL_READ
+              valueFrom:
+                secretKeyRef:
+                  name: lakekeeper-secrets
+                  key: LAKEKEEPER_PG_URL
+            - name: LAKEKEEPER__PG_DATABASE_URL_WRITE
+              valueFrom:
+                secretKeyRef:
+                  name: lakekeeper-secrets
+                  key: LAKEKEEPER_PG_URL
+      containers:
+        - name: lakekeeper
+          image: quay.io/lakekeeper/catalog:latest
+          command: ["serve"]
+          ports:
+            - containerPort: 8181
+          env:
+            - name: LAKEKEEPER__PG_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lakekeeper-secrets
+                  key: LAKEKEEPER_PG_ENCRYPTION_KEY
+            - name: LAKEKEEPER__PG_DATABASE_URL_READ
+              valueFrom:
+                secretKeyRef:
+                  name: lakekeeper-secrets
+                  key: LAKEKEEPER_PG_URL
+            - name: LAKEKEEPER__PG_DATABASE_URL_WRITE
+              valueFrom:
+                secretKeyRef:
+                  name: lakekeeper-secrets
+                  key: LAKEKEEPER_PG_URL
+            - name: LAKEKEEPER__AUTHZ_BACKEND
+              value: allowall
+          livenessProbe:
+            exec:
+              command: ["/home/nonroot/lakekeeper", "healthcheck"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["/home/nonroot/lakekeeper", "healthcheck"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
