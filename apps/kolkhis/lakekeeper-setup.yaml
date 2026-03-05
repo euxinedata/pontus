@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lakekeeper-setup
+  namespace: kolkhis
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        - name: wait-for-lakekeeper
+          image: curlimages/curl:latest
+          command: ["sh", "-c", "until curl -sf http://lakekeeper:8181/health; do sleep 2; done"]
+      containers:
+        - name: setup
+          image: curlimages/curl:latest
+          envFrom:
+            - secretRef:
+                name: kolkhis-s3-secrets
+            - secretRef:
+                name: lakekeeper-secrets
+          command: ["sh", "-c"]
+          args:
+            - |
+              curl -sf http://lakekeeper:8181/management/v1/warehouse \
+                -H 'Content-Type: application/json' \
+                -H 'X-Project-Id: 00000000-0000-0000-0000-000000000000' \
+                -d "{
+                  \"warehouse-name\": \"warehouse\",
+                  \"storage-profile\": {
+                    \"type\": \"s3\",
+                    \"bucket\": \"$S3_BUCKET_NAME\",
+                    \"region\": \"$S3_REGION\",
+                    \"flavor\": \"s3-compat\",
+                    \"endpoint\": \"$S3_ENDPOINT\",
+                    \"path-style-access\": true,
+                    \"sts-enabled\": false,
+                    \"remote-signing-enabled\": false
+                  },
+                  \"storage-credential\": {
+                    \"type\": \"s3\",
+                    \"credential-type\": \"access-key\",
+                    \"aws-access-key-id\": \"$S3_ACCESS_KEY\",
+                    \"aws-secret-access-key\": \"$S3_SECRET_KEY\"
+                  }
+                }" || echo "Warehouse already exists"

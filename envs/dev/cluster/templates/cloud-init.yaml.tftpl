@@ -158,6 +158,7 @@ runcmd:
       GOOGLE_CLIENT_ID: "${kolkhis_google_client_id}"
       GOOGLE_CLIENT_SECRET: "${kolkhis_google_client_secret}"
       JWT_SECRET: "${kolkhis_jwt_secret}"
+      SHELL_ORG_UUID: "${shell_org_uuid}"
     MANIFEST
 
   # Write S3 Object Storage secrets for Kolkhis
@@ -236,6 +237,20 @@ runcmd:
     stringData:
       DAGSTER_PG_URL: "postgresql://${urlencode(dagster_pg_username)}:${urlencode(dagster_pg_password)}@${dagster_pg_host}:5432/${dagster_pg_db}"
       DAGSTER_IMAGE: "${dagster_image}"
+    MANIFEST
+
+  # Write Lakekeeper secrets
+  - |
+    cat > /mnt/data/k3s/server/manifests/lakekeeper-secrets.yaml <<'MANIFEST'
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: lakekeeper-secrets
+      namespace: kolkhis
+    type: Opaque
+    stringData:
+      LAKEKEEPER_PG_ENCRYPTION_KEY: "${lakekeeper_pg_encryption_key}"
+      LAKEKEEPER_PG_URL: "postgresql://${urlencode(dagster_pg_username)}:${urlencode(dagster_pg_password)}@${dagster_pg_host}:5432/lakekeeper"
     MANIFEST
 
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
