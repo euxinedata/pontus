@@ -234,10 +234,7 @@ runcmd:
       namespace: kolkhis
     type: Opaque
     stringData:
-      DAGSTER_PG_USERNAME: "${dagster_pg_username}"
-      DAGSTER_PG_PASSWORD: "${dagster_pg_password}"
-      DAGSTER_PG_HOST: "${dagster_pg_host}"
-      DAGSTER_PG_DB: "${dagster_pg_db}"
+      DAGSTER_PG_URL: "postgresql://${urlencode(dagster_pg_username)}:${urlencode(dagster_pg_password)}@${dagster_pg_host}:5432/${dagster_pg_db}"
       DAGSTER_IMAGE: "${dagster_image}"
     MANIFEST
 
