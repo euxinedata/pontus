@@ -28,7 +28,7 @@ spec:
                 name: postgres-credentials
         - name: migrate
           image: quay.io/lakekeeper/catalog:latest
-          command: ["migrate"]
+          args: ["migrate"]
           env:
             - name: LAKEKEEPER__PG_ENCRYPTION_KEY
               valueFrom:
@@ -48,7 +48,7 @@ spec:
       containers:
         - name: lakekeeper
           image: quay.io/lakekeeper/catalog:latest
-          command: ["serve"]
+          args: ["serve"]
           ports:
             - containerPort: 8181
           env:
