@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dagster-basic-auth
+  namespace: kolkhis
+data:
+  users: a29sa2hpcy1hZG1pbjokYXByMSRsV3B1Y2x2ZSRLQnlJS0tKVUw0Yk9jc3J6ZVpRUWoxCg==
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dagster-basic-auth
+  namespace: kolkhis
+spec:
+  basicAuth:
+    secret: dagster-basic-auth
