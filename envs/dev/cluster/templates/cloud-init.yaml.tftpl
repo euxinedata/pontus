@@ -261,6 +261,11 @@ runcmd:
   # Wait for k3s to be ready
   - until /usr/local/bin/kubectl get nodes 2>/dev/null; do sleep 5; done
 
+  # Block Lakekeeper NodePort (30181) on public interface — only accessible via private network
+  - iptables -I INPUT -i eth0 -p tcp --dport 30181 -j DROP
+  - apt-get install -y iptables-persistent
+  - netfilter-persistent save
+
   # Install k9s
   - curl -sL https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_amd64.tar.gz | tar xz -C /usr/local/bin k9s
 
