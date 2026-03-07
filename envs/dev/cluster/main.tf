@@ -61,7 +61,6 @@ module "cluster" {
     dagster_pg_host              = var.dagster_pg_host
     dagster_pg_db                = var.dagster_pg_db
     dagster_image                = var.dagster_image
-    lakekeeper_pg_encryption_key = var.lakekeeper_pg_encryption_key
   })
 
   labels = {
