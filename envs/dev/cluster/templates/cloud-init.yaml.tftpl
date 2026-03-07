@@ -238,19 +238,6 @@ runcmd:
       DAGSTER_IMAGE: "${dagster_image}"
     MANIFEST
 
-  # Write Lakekeeper secrets
-  - |
-    cat > /mnt/data/k3s/server/manifests/lakekeeper-secrets.yaml <<'MANIFEST'
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: lakekeeper-secrets
-      namespace: kolkhis
-    type: Opaque
-    stringData:
-      LAKEKEEPER_PG_ENCRYPTION_KEY: "${lakekeeper_pg_encryption_key}"
-      LAKEKEEPER_PG_URL: "postgresql://${urlencode(dagster_pg_username)}:${urlencode(dagster_pg_password)}@${dagster_pg_host}:5432/lakekeeper"
-    MANIFEST
 
   # Clear stale k3s bootstrap data (token mismatch after cluster rebuild)
   - rm -rf /mnt/data/k3s/server/{db,tls,token,cred}
@@ -261,8 +248,8 @@ runcmd:
   # Wait for k3s to be ready
   - until /usr/local/bin/kubectl get nodes 2>/dev/null; do sleep 5; done
 
-  # Block Lakekeeper NodePort (30181) on public interface — only accessible via private network
-  - iptables -I INPUT -i eth0 -p tcp --dport 30181 -j DROP
+  # Block PostgreSQL NodePort (30432) on public interface — only accessible via private network
+  - iptables -I INPUT -i eth0 -p tcp --dport 30432 -j DROP
   - apt-get install -y iptables-persistent
   - netfilter-persistent save
 

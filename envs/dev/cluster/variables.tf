@@ -127,10 +127,4 @@ variable "dagster_image" {
   default     = "ghcr.io/euxinedata/dagster:latest"
 }
 
-variable "lakekeeper_pg_encryption_key" {
-  description = "Encryption key for Lakekeeper secrets in PostgreSQL"
-  type        = string
-  sensitive   = true
-}
-
 
